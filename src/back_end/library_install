@@ -1,0 +1,13 @@
+Before coding back_end, we need to install the following libraries.
+(Trước mắt cứ tải mấy cái không có dấu chú thích trước đã)
+npm install mongodb
+npm install mongoose 
+npm install dotenv
+//npm install bcrypt
+//npm install jsonwebtoken
+npm install express
+//npm install body-parser
+//npm install cors
+npm install nodemon 
+//npm install multer 
+//npm install multer-s3 
