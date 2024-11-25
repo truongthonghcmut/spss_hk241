@@ -1,6 +1,6 @@
 //Require the mongoose module
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+import mongoose from 'mongoose'
+import dotenv from 'dotenv'
 dotenv.config();
 
 //Set up default mongoose connection
@@ -16,4 +16,4 @@ db.once('open', function() {
     console.log("Connected to MongoDB database");
 });
 
-module.exports = db;
+export default db;
