@@ -1,5 +1,7 @@
 import React from "react";
 import "./user_manage.css";
+import Image from "next/image";
+import Images from "../../../public/assets/Images/logo.png"
 
 const UserManage: React.FC = () => {
   return (
@@ -7,19 +9,19 @@ const UserManage: React.FC = () => {
       {/* Header */}
       <header className="user-header">
         <div className="logo">
-          <img src="./logo.png" alt="Logo" />
+        <Image src={Images} alt="Logo" width={80} height={80} />
           <span>HCMUT-SPSS</span>
         </div>
         <nav className="user-navbar">
-          <a href="/home">Trang chủ</a>
-          <a href="/user-management">Quản lý người dùng</a>
-          <a href="/system-management">Quản lý hệ thống</a>
+          <a href="/admin_homepage">Trang chủ</a>
+          <a href="/user_manage">Quản lý người dùng</a>
+          <a href="/system_manage">Quản lý hệ thống</a>
           <a href="/logout">Đăng xuất</a>
         </nav>
       </header>
 
       {/* Main Content */}
-      <main className="user-main">
+      <main className="user-main text-black">
         <h2>Quản lý người dùng</h2>
         <div className="user-table-container">
           <table className="user-table">

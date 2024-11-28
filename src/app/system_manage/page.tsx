@@ -1,5 +1,7 @@
 import React from "react";
 import "./system_manage.css";
+import Image from "next/image";
+import Images from "../../../public/assets/Images/logo.png"
 
 const SystemManage: React.FC = () => {
   return (
@@ -7,19 +9,19 @@ const SystemManage: React.FC = () => {
       {/* Header */}
       <header className="system-header">
         <div className="logo">
-          <img src="./logo.png" alt="Logo" />
+          <Image src={Images} alt="Logo" width={80} height={80} />
           <span>HCMUT-SPSS</span>
         </div>
         <nav className="system-navbar">
-          <a href="/home">Trang chủ</a>
-          <a href="/user-management">Quản lý người dùng</a>
-          <a href="/system-management">Quản lý hệ thống</a>
+          <a href="/admin_homepage">Trang chủ</a>
+          <a href="/user_manage">Quản lý người dùng</a>
+          <a href="/system_manage">Quản lý hệ thống</a>
           <a href="/logout">Đăng xuất</a>
         </nav>
       </header>
 
       {/* Main Content */}
-      <main className="system-main">
+      <main className="system-main text-black">
         {/* Máy in Section */}
         <section className="printer-management">
           <h2>Quản lý máy in</h2>
