@@ -1,3 +1,4 @@
+"use client"
 import Link from 'next/link';
 import Image from "next/image";
 import React from "react";
@@ -15,7 +16,6 @@ export default function Header() {
         alignItems: 'center' 
       }}
     >
-      {/* Logo và tiêu đề */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
           <Image
@@ -30,7 +30,6 @@ export default function Header() {
         </Link>
       </div>
 
-      {/* Nút Đăng nhập */}
       <div>
         <Link 
           href="/login"

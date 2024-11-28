@@ -1,14 +1,10 @@
+"use client"
 import React from "react";
 import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Trang đăng nhập cho sinh viên",
-    description: "Trang đăng nhập HCMUT_SPSS cho sinh viên",
-    icons: "/favicon.ico",
-}
-
+import { useRouter } from "next/navigation";
 
 export default function StudentLogin() {
+    
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
             <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md border border-gray-300">
