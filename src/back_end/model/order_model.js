@@ -18,4 +18,4 @@ const orderSchema = new Schema(
 // Create the student model
 const orderModel = db.model('Order', orderSchema)
 
-export default orderModel
+export { orderModel }

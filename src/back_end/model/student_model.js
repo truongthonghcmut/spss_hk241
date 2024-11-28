@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 // Define the schema for the student model
 const studentSchema = new Schema(
   {
-    Stu_ID: Number,
+    Stu_ID: { type: Number, unique: true, required: true },
     Stu_name: String,
     Stu_email: { type: String, required: true, unique: true },
     PrintHistory: [{ type: Schema.Types.ObjectId, ref: 'PrintHistory' }],
@@ -73,4 +73,4 @@ const studentModel = db.model('Student', studentSchema)
 
 // deleteById()
 
-export default studentModel
+export { studentModel }

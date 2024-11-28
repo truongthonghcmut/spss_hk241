@@ -78,4 +78,4 @@ const printerModel = db.model('Printer', printerSchema)
 
 // deleteById()
 
-export default printerModel
+export { printerModel }
