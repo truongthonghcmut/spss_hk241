@@ -1,22 +1,22 @@
-import { printHistoryModel } from '../model/printhistory_model.js'
+import { printHistoryModel } from '../../model/printhistory_model.js'
 
 export default async (req, res) => {
   try {
-    const {Stu_ID, Index} = req.query
+    const { Stu_ID, Index } = req.query
 
     if (!Stu_ID || !Index) {
-      return res.status(400).json({ message: 'Stu_ID and Index are required.' });
+      return res.status(400).json({ message: 'Stu_ID and Index are required.' })
     }
 
-    const history = await printHistoryModel.findOne({ Stu_ID, Index }).exec();
-    
+    const history = await printHistoryModel.findOne({ Stu_ID, Index }).exec()
+
     if (!history) {
       return res.status(404).json({ message: 'Property not found' })
     }
 
     return res.status(200).json({
       message: 'Property found',
-      Paper_type: history.Paper_type
+      Building: history.Building
     })
   } catch (error) {
     console.log(error)

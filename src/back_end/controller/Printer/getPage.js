@@ -10,8 +10,8 @@ export default async (req, res) => {
     }
 
     return res.status(200).json({
-      message: 'Printer found',
-      printer: printer
+      message: 'Printer ' + printer.Print_ID + 'has the number of pages: ',
+      Printer_pages: printer.Printer_pages
     })
   } catch (error) {
     console.log(error)

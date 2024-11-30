@@ -11,7 +11,7 @@ export default async (req, res) => {
 
     return res.status(200).json({
       message: 'Student found',
-      student: student.Stu_email
+      student: student
     })
   } catch (error) {
     console.log(error)

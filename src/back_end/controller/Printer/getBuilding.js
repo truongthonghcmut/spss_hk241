@@ -1,17 +1,17 @@
 import { printerModel } from '../model/printer_model.js'
 
-const getStatus = async (req, res) => {
+const getBuilding = async (req, res) => {
   try {
     const print_ID = req.params.Print_ID
 
     const printer = await printerModel.findOne({ Print_ID: print_ID }).exec()
     if (!printer) {
-      return res.status(404).json({ message: 'Printer status not found' })
+      return res.status(404).json({ message: 'Printer not found' })
     }
 
     return res.status(200).json({
-      message: 'Printer status found',
-      Status: printer.Status
+      message: 'Printer ' + printer.Print_ID + 'in this building: ',
+      Building: printer.Building
     })
   } catch (error) {
     console.log(error)
@@ -21,4 +21,4 @@ const getStatus = async (req, res) => {
   }
 }
 
-export default getStatus
+export default getBuilding

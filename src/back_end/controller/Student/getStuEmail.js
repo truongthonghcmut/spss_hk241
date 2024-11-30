@@ -1,4 +1,4 @@
-import { studentModel } from '../model/student_model.js'
+import { studentModel } from '../../model/student_model.js'
 
 export default async (req, res) => {
   try {

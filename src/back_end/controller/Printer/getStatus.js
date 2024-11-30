@@ -1,6 +1,6 @@
-import { printerModel } from '../model/printer_model.js'
+import { printerModel } from '../../model/printer_model.js'
 
-export default async (req, res) => {
+const getStatus = async (req, res) => {
   try {
     const print_ID = req.params.Print_ID
 
@@ -10,8 +10,8 @@ export default async (req, res) => {
     }
 
     return res.status(200).json({
-      message: 'Printer found',
-      Printer_pages: printer.Printer_pages
+      message: 'Printer ' + printer.Print_ID + ' have status: ',
+      Status: printer.Status
     })
   } catch (error) {
     console.log(error)
@@ -20,3 +20,5 @@ export default async (req, res) => {
     })
   }
 }
+
+export default getStatus
