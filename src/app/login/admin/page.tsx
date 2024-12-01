@@ -27,12 +27,12 @@ export default function AdminLogin() {
                         </h3>
                         <form>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Tên đăng nhập
+                                Email
                             </label>
                             <input
                                 type="text"
                                 className="block w-full p-2 mb-4 border border-gray-300 rounded text-black"
-                                placeholder="Tên đăng nhập"
+                                placeholder="Email"
                                 style={{ color: "#000" }}
                             />
                             <label className="block text-sm font-medium text-gray-700 mb-2">

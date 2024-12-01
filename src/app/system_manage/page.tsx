@@ -128,9 +128,6 @@ const SystemManage: React.FC = () => {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="system-footer">Copyright (C) 2024</footer>
     </div>
   );
 };

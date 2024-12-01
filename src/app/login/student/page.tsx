@@ -2,9 +2,48 @@
 import React from "react";
 import { Metadata } from "next";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useState } from "react";
 
 export default function StudentLogin() {
     
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const router = useRouter();
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setErrorMessage(""); // Reset lỗi
+        setIsLoading(true);  // Bắt đầu tải
+
+        try {
+            const response = await axios.post("http://localhost:8080/api/account/login", {
+                email,
+                password,
+            });
+
+            // Xử lý phản hồi nếu đăng nhập thành công
+            if (response.data.code === "success") {
+                alert("Đăng nhập thành công!");
+                // Chuyển hướng hoặc lưu token vào localStorage
+                localStorage.setItem("token", response.data.token);
+                router.push('/student_homepage')
+            }
+        } catch (error: any) {
+            // Xử lý lỗi từ server
+            if (error.response) {
+                setErrorMessage(error.response.data.message || "Đăng nhập thất bại!");
+            } else {
+                setErrorMessage("Lỗi kết nối đến server. Vui lòng thử lại sau!");
+            }
+        } finally {
+            setIsLoading(false); // Dừng tải
+        }
+    };
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
             <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md border border-gray-300">
@@ -21,12 +60,12 @@ export default function StudentLogin() {
                         </h3>
                         <form>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Tên đăng nhập
+                                Email
                             </label>
                             <input
                                 type="text"
                                 className="block w-full p-2 mb-4 border border-gray-300 rounded text-black"
-                                placeholder="Tên đăng nhập"
+                                placeholder="Email"
                                 style={{ color: "#000" }}
                             />
                             <label className="block text-sm font-medium text-gray-700 mb-2">
