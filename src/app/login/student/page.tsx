@@ -24,7 +24,7 @@ export default function StudentLogin() {
                 email,
                 password,
             });
-
+            console.log(response)
             // Xử lý phản hồi nếu đăng nhập thành công
             if (response.data.code === "success") {
                 alert("Đăng nhập thành công!");
@@ -67,6 +67,8 @@ export default function StudentLogin() {
                                 className="block w-full p-2 mb-4 border border-gray-300 rounded text-black"
                                 placeholder="Email"
                                 style={{ color: "#000" }}
+                                value={email} // Gắn giá trị email
+                                onChange={(e) => setEmail(e.target.value)} // Cập nhật email
                             />
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Mật khẩu
@@ -76,6 +78,8 @@ export default function StudentLogin() {
                                 className="block w-full p-2 mb-4 border border-gray-300 rounded text-black"
                                 placeholder="Mật khẩu"
                                 style={{ color: "#000" }}
+                                value={password} // Gắn giá trị password
+                                onChange={(e) => setPassword(e.target.value)} // Cập nhật password
                             />
                             <div className="flex justify-between items-center mb-4">
                                 <a
@@ -95,6 +99,7 @@ export default function StudentLogin() {
                                 <button
                                     type="submit"
                                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                                    onClick={handleLogin}
                                 >
                                     Đăng nhập
                                 </button>
