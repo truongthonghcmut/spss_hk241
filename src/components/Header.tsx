@@ -25,7 +25,7 @@ export default function Header() {
             alt="Logo"
           />
           <h1 style={{ marginLeft: '10px', fontSize: '20px', fontWeight: 'bold' }}>
-            HCMUT_SPSS
+            HCMUT_SSPS
           </h1>
         </Link>
       </div>

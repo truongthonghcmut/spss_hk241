@@ -10,7 +10,7 @@ const AdminHomepage: React.FC = () => {
       <header className="admin-header">
         <div className="logo">
         <Image src={Images} alt="Logo" width={80} height={80} />
-          <span>HCMUT-SPSS</span>
+          <span>HCMUT-SSPS</span>
         </div>
         <nav className="admin-navbar">
           <a href="/student_homepage">Trang chủ</a>
@@ -22,7 +22,7 @@ const AdminHomepage: React.FC = () => {
 
       {/* Main Content */}
       <main className="admin-main text-black">
-        <h1>SINH VIÊN ĐĂNG NHẬP HỆ THỐNG HCMUT-SPSS</h1>
+        <h1>SINH VIÊN ĐĂNG NHẬP HỆ THỐNG HCMUT-SSPS</h1>
         <div className="admin-image flex flex-col items-center justify-center">
         <Image src={Images} alt="Logo" width={600} height={600} />
         </div>

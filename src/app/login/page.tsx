@@ -2,7 +2,8 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Images from "../../../public/assets/Images/logo.png";
-
+import Logo from "../../../public/assets/Images/logo.png";
+import "../../app/login/header.css"
 
 
 export default function LoginPage() {
@@ -13,7 +14,18 @@ export default function LoginPage() {
     };
 
     return (
+        <>
+        <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/login">Đăng nhập</a>
+        </nav>
+      </header>
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-bold">
+            
             <div 
                 className="w-full space-y-8"
                 style={{
@@ -88,5 +100,6 @@ export default function LoginPage() {
                 </main>
             </div>
         </div>
+        </>
     );
 }

@@ -10,7 +10,7 @@ const UserManage: React.FC = () => {
       <header className="user-header">
         <div className="logo">
         <Image src={Images} alt="Logo" width={80} height={80} />
-          <span>HCMUT-SPSS</span>
+          <span>HCMUT-SSPS</span>
         </div>
         <nav className="user-navbar">
           <a href="/admin_homepage">Trang chủ</a>
@@ -102,9 +102,6 @@ const UserManage: React.FC = () => {
           <button>Xác nhận</button>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="user-footer">Copyright (C) 2024</footer>
     </div>
   );
 };

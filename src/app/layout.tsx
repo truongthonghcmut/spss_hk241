@@ -19,7 +19,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "HCMUT_SPSS",
+  title: "HCMUT_SSPS",
   description: "Trang dịch vụ in ấn dành cho sinh viên",
 };
 
@@ -31,7 +31,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} w-full`}>
-          <Header />
           <main>{children}</main>
           <Footer />
       </body>

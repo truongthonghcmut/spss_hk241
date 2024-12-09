@@ -22,7 +22,7 @@ const AdminHomepage: React.FC = () => {
 
       {/* Main Content */}
       <main className="admin-main text-black">
-        <h1>QUẢN TRỊ VIÊN HỆ THỐNG HCMUT-SPSS</h1>
+        <h1>QUẢN TRỊ VIÊN HỆ THỐNG HCMUT-SSPS</h1>
         <div className="admin-image flex flex-col items-center justify-center">
         <Image src={Images} alt="Logo" width={600} height={600} />
         </div>

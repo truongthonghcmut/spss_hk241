@@ -1,9 +1,12 @@
 "use client"
 import React from "react";
+import Image from "next/image";
 import { Metadata } from "next";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useState } from "react";
+import Logo from "../../../../public/assets/Images/logo.png"
+import "../student/header.css"
 
 export default function StudentLogin() {
     
@@ -45,6 +48,16 @@ export default function StudentLogin() {
     };
 
     return (
+        <>
+        <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/login">Đăng nhập</a>
+        </nav>
+      </header>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
             <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md border border-gray-300">
                 <div className="flex justify-between items-center mb-6">
@@ -135,5 +148,6 @@ export default function StudentLogin() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

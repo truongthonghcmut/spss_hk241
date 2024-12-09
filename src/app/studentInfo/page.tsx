@@ -1,8 +1,24 @@
 "use client";
 import React from "react";
+import Image from "next/image";
+import Logo from "../../../public/assets/Images/logo.png"
+import "../studentInfo/header.css"
 
 export default function StudentProfile() {
   return (
+    <>
+    <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/student_homepage">Trang chủ</a>
+          <a href="/printDocument">In tài liệu</a>
+          <a href="/studentInfo">Hồ sơ cá nhân</a>
+          <a href="/logout">Đăng xuất</a>
+        </nav>
+      </header>
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="w-full max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md border border-gray-300">
         {/* Header */}
@@ -148,5 +164,6 @@ export default function StudentProfile() {
         </div>
       </div>
     </div>
+    </>
   );
 }

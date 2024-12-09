@@ -10,7 +10,7 @@ const SystemManage: React.FC = () => {
       <header className="system-header">
         <div className="logo">
           <Image src={Images} alt="Logo" width={80} height={80} />
-          <span>HCMUT-SPSS</span>
+          <span>HCMUT-SSPS</span>
         </div>
         <nav className="system-navbar">
           <a href="/admin_homepage">Trang chủ</a>
@@ -127,6 +127,7 @@ const SystemManage: React.FC = () => {
             <button>Xác nhận tất cả thay đổi</button>
           </div>
         </section>
+        {/* Footer */}
       </main>
     </div>
   );

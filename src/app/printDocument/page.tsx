@@ -1,12 +1,21 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Logo from "../../../public/assets/Images/logo.png"
+import "../printDocument/header.css"
 
 export default function PrintPage() {
+  const router = useRouter();
   const [fileName, setFileName] = useState("Chưa có tài liệu được tải lên");
   const [paperCount, setPaperCount] = useState(5);
   const [printQuantity, setPrintQuantity] = useState(1);
-  const [selectedPrinter, setSelectedPrinter] = useState("Canon LBP603W - A5 - CS1");
-  const [selectedPaperSize, setSelectedPaperSize] = useState("A4 (297 mm x 210 mm)");
+  const [selectedPrinter, setSelectedPrinter] = useState(
+    "Canon LBP603W - A5 - CS1"
+  );
+  const [selectedPaperSize, setSelectedPaperSize] = useState(
+    "A4 (297 mm x 210 mm)"
+  );
   const [printFormat, setPrintFormat] = useState("In một mặt");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,11 +25,30 @@ export default function PrintPage() {
     }
   };
 
+  const handlePurchaseMorePaper = () => {
+    router.push("/purchasePaper");
+  };
+
   return (
+    <>
+    <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/student_homepage">Trang chủ</a>
+          <a href="/printDocument">In tài liệu</a>
+          <a href="/studentInfo">Hồ sơ cá nhân</a>
+          <a href="/logout">Đăng xuất</a>
+        </nav>
+      </header>
     <div className="min-h-screen bg-gray-50 py-10 text-black">
       <div className="w-full max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md border border-gray-300">
         {/* Header */}
-        <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">Tải tệp lên</h1>
+        <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+          Tải tệp lên
+        </h1>
 
         {/* Tải tài liệu */}
         <div className="mb-8">
@@ -54,23 +82,28 @@ export default function PrintPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Chọn máy in */}
           <div>
-            <h3 className="text-lg font-bold text-gray-700 mb-4">Chọn máy in</h3>
+            <h3 className="text-lg font-bold text-gray-700 mb-4">
+              Chọn máy in
+            </h3>
             <div className="space-y-2">
-              {["Canon LBP603W - A5 - CS1", "HP LaserJet M211d - B4 - CS1", "LBP2900 - H3 - CS2", "HP 107a (4ZB77A) - H6 - CS2"].map(
-                (printer) => (
-                  <div
-                    key={printer}
-                    onClick={() => setSelectedPrinter(printer)}
-                    className={`cursor-pointer px-4 py-2 border rounded-lg ${
-                      selectedPrinter === printer
-                        ? "bg-yellow-200 border-yellow-400"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                  >
-                    {printer}
-                  </div>
-                )
-              )}
+              {[
+                "Canon LBP603W - A5 - CS1",
+                "HP LaserJet M211d - B4 - CS1",
+                "LBP2900 - H3 - CS2",
+                "HP 107a (4ZB77A) - H6 - CS2",
+              ].map((printer) => (
+                <div
+                  key={printer}
+                  onClick={() => setSelectedPrinter(printer)}
+                  className={`cursor-pointer px-4 py-2 border rounded-lg ${
+                    selectedPrinter === printer
+                      ? "bg-yellow-200 border-yellow-400"
+                      : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  {printer}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -78,9 +111,16 @@ export default function PrintPage() {
           <div>
             <h3 className="text-lg font-bold text-gray-700 mb-4">
               Số lượng tờ còn lại tương ứng:{" "}
-              <span className="bg-yellow-200 px-2 py-1 rounded">{paperCount}</span>
+              <span className="bg-yellow-200 px-2 py-1 rounded">
+                {paperCount}
+              </span>
             </h3>
-            <button className="text-blue-500 hover:underline">Mua thêm</button>
+            <button
+              className="text-blue-500 hover:underline"
+              onClick={handlePurchaseMorePaper}
+            >
+              Mua thêm
+            </button>
 
             <div className="mt-6">
               <label
@@ -103,7 +143,9 @@ export default function PrintPage() {
 
         {/* Chọn cỡ giấy in */}
         <div className="mt-8">
-          <h3 className="text-lg font-bold text-gray-700 mb-4">Chọn cỡ giấy in</h3>
+          <h3 className="text-lg font-bold text-gray-700 mb-4">
+            Chọn cỡ giấy in
+          </h3>
           <div className="space-y-2">
             {["A4 (297 mm x 210 mm)", "A3 (420 mm x 297 mm)"].map((size) => (
               <div
@@ -154,5 +196,6 @@ export default function PrintPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

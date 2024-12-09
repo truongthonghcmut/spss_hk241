@@ -1,17 +1,64 @@
+"use client"
 import React from "react";
 import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Trang đăng nhập cho quản trị viên",
-    description: "Trang đăng nhập HCMUT_SPSS cho sinh viên",
-    icons: "/favicon.ico",
-}
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import axios from "axios";
+import { useState } from "react";
+import Logo from "../../../../public/assets/Images/logo.png"
+import "../student/header.css"
 
 
 export default function AdminLogin() {
 
-    
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const router = useRouter();
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setErrorMessage(""); // Reset lỗi
+        setIsLoading(true);  // Bắt đầu tải
+
+        try {
+            const response = await axios.post("http://localhost:8080/manager/api/login", {
+                email,
+                password,
+            });
+            console.log(response)
+            // Xử lý phản hồi nếu đăng nhập thành công
+            if (response.data.code === "success") {
+                alert("Đăng nhập thành công!");
+                // Chuyển hướng hoặc lưu token vào localStorage
+                localStorage.setItem("token", response.data.token);
+                router.push('/admin_homepage')
+            }
+        } catch (error: any) {
+            // Xử lý lỗi từ server
+            if (error.response) {
+                setErrorMessage(error.response.data.message || "Đăng nhập thất bại!");
+            } else {
+                setErrorMessage("Lỗi kết nối đến server. Vui lòng thử lại sau!");
+            }
+        } finally {
+            setIsLoading(false); // Dừng tải
+        }
+    };
+
     return (
+        <>
+        <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/login">Đăng nhập</a>
+        </nav>
+      </header>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
             <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md border border-gray-300">
                 <div className="flex justify-between items-center mb-6">
@@ -34,6 +81,8 @@ export default function AdminLogin() {
                                 className="block w-full p-2 mb-4 border border-gray-300 rounded text-black"
                                 placeholder="Email"
                                 style={{ color: "#000" }}
+                                value={email} // Gắn giá trị email
+                                onChange={(e) => setEmail(e.target.value)} // Cập nhật email
                             />
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Mật khẩu
@@ -43,6 +92,8 @@ export default function AdminLogin() {
                                 className="block w-full p-2 mb-4 border border-gray-300 rounded text-black"
                                 placeholder="Mật khẩu"
                                 style={{ color: "#000" }}
+                                value={password} // Gắn giá trị password
+                                onChange={(e) => setPassword(e.target.value)} // Cập nhật password
                             />
                             <div className="flex justify-between items-center mb-4">
                                 <a
@@ -62,6 +113,7 @@ export default function AdminLogin() {
                                 <button
                                     type="submit"
                                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                                    onClick={handleLogin}
                                 >
                                     Đăng nhập
                                 </button>
@@ -85,5 +137,6 @@ export default function AdminLogin() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

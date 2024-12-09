@@ -2,10 +2,12 @@ import Image from "next/image";
 import React from "react"
 import { Metadata } from "next";
 import Images from "../../public/assets/Images/background.png"
+import Logo from "../../public/assets/Images/logo.png"
+import "../app/header.css"
 
 
 export const metadata: Metadata = {
-    title: "HCMUT_SPSS",
+    title: "HCMUT_SSPS",
     description: "Trang chủ ứng dụng in ấn dành cho sinh viên",
     icons: "/favicon.ico",
 }
@@ -14,6 +16,15 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+    <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/login">Đăng nhập</a>
+        </nav>
+      </header>
       <main className="relative h-screen w-screen overflow-hidden">
         <Image
           src={Images}

@@ -2,6 +2,8 @@ import React from "react";
 import { Metadata } from "next";
 import Image from "next/image";
 import Images from "../../../public/assets/Images/logout.png"
+import Logo from "../../../public/assets/Images/logo.png"
+import "../logout/header.css"
 
 export const metadata: Metadata = {
     title: "Đăng xuất",
@@ -11,6 +13,16 @@ export const metadata: Metadata = {
 
 export default function LogoutPage() {
     return (
+        <>
+        <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/login">Đăng nhập</a>
+        </nav>
+      </header>
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
             <div className="max-w-2xl text-center">
                 <h1 className="text-2xl font-bold text-blue-700 mb-4">
@@ -31,5 +43,6 @@ export default function LogoutPage() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
+import Logo from "../../../public/assets/Images/logo.png"
+import "../purchasePaper/header.css"
 
 export default function PaperPurchase() {
   const [paperType, setPaperType] = useState("A4");
@@ -29,6 +32,19 @@ export default function PaperPurchase() {
   };
 
   return (
+    <>
+    <header className="header">
+        <div className="logo">
+        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <span>HCMUT-SSPS</span>
+        </div>
+        <nav className="navbar">
+          <a href="/student_homepage">Trang chủ</a>
+          <a href="/printDocument">In tài liệu</a>
+          <a href="/studentInfo">Hồ sơ cá nhân</a>
+          <a href="/logout">Đăng xuất</a>
+        </nav>
+      </header>
     <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10">
       <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md border border-gray-300">
         <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">
@@ -128,5 +144,6 @@ export default function PaperPurchase() {
         </div>
       </div>
     </div>
+    </>
   );
 }
