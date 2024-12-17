@@ -1,0 +1,14 @@
+{
+  "/page": "app/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/login/student/page": "app/login/student/page.js",
+  "/student_homepage/page": "app/student_homepage/page.js",
+  "/printDocument/page": "app/printDocument/page.js",
+  "/studentInfo/page": "app/studentInfo/page.js",
+  "/logout/page": "app/logout/page.js",
+  "/login/admin/page": "app/login/admin/page.js",
+  "/admin_homepage/page": "app/admin_homepage/page.js",
+  "/user_manage/page": "app/user_manage/page.js",
+  "/system_manage/page": "app/system_manage/page.js"
+}

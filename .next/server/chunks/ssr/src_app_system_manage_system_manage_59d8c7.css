@@ -1,0 +1,109 @@
+/* [project]/src/app/system_manage/system_manage.css [app-client] (css) */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.system-manage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.system-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0078d7;
+  color: #fff;
+  padding: 10px 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.system-navbar a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+.system-navbar a:hover {
+  text-decoration: underline;
+}
+
+.system-main {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+section {
+  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px #0000001a;
+  padding: 20px;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+table th {
+  background-color: #f2f2f2;
+}
+
+.status-active {
+  color: green;
+  font-weight: bold;
+}
+
+.status-allowed {
+  color: green;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #0078d7;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #005bb5;
+}
+
+.system-footer {
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+}
+
+
+/*# sourceMappingURL=src_app_system_manage_system_manage_59d8c7.css.map*/

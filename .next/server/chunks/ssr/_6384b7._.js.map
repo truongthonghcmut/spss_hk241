@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/macbookpro/Desktop/spss_hk241/src/app/page.tsx"],"sourcesContent":["import Image from \"next/image\";\nimport React from \"react\"\nimport { Metadata } from \"next\";\nimport Images from \"../../public/assets/Images/background.png\"\n\n\nexport const metadata: Metadata = {\n    title: \"HCMUT_SPSS\",\n    description: \"Trang chủ ứng dụng in ấn dành cho sinh viên\",\n    icons: \"/favicon.ico\",\n}\n\n\nexport default function Home() {\n  return (\n    <>\n      <main className=\"relative h-screen w-screen overflow-hidden\">\n        <Image\n          src={Images}\n          alt=\"Background\"\n          layout=\"fill\"           \n          objectFit=\"cover\"       \n          objectPosition=\"center\" \n          priority              \n        />\n        <div className=\"relative z-10 flex items-center justify-center h-full\">\n          {/* Your foreground content here */}\n          <h1 className=\"text-white text-4xl\">Welcome to My Website</h1>\n        </div>\n      </main>\n    </>\n  );\n}"],"names":[],"mappings":";;;;;AAAA;AAGA;;;;AAGO,MAAM,WAAqB;IAC9B,OAAO;IACP,aAAa;IACb,OAAO;AACX;AAGe,SAAS;IACtB,qBACE;kBACE,cAAA,8OAAC;YAAK,WAAU;;8BACd,8OAAC,6HAAA,CAAA,UAAK;oBACJ,KAAK,oTAAA,CAAA,UAAM;oBACX,KAAI;oBACJ,QAAO;oBACP,WAAU;oBACV,gBAAe;oBACf,QAAQ;;;;;;8BAEV,8OAAC;oBAAI,WAAU;8BAEb,cAAA,8OAAC;wBAAG,WAAU;kCAAsB;;;;;;;;;;;;;;;;;;AAK9C"}},
+    {"offset": {"line": 62, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}},
+    {"offset": {"line": 73, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":""}},
+    {"offset": {"line": 73, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
