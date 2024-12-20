@@ -1,12 +1,97 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import "./system_manage.css";
 import Image from "next/image";
-import Images from "../../../public/assets/Images/logo.png"
+import axios from "axios";
+
+import Images from "../../../public/assets/Images/logo.png";
+
+interface Printer {
+  id: string;
+  name: string;
+  location: string;
+  status: "active" | "inactive";
+  pagesPrinted: number;
+}
+
+interface FileType {
+  id: string;
+  name: string;
+  allowed: boolean;
+}
 
 const SystemManage: React.FC = () => {
+  const [printers, setPrinters] = useState<Printer[]>([]);
+  const [fileTypes, setFileTypes] = useState<FileType[]>([]);
+  const [defaultPages, setDefaultPages] = useState(20);
+
+  // Fetch danh sách máy in
+  useEffect(() => {
+    const fetchPrinters = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/printers");
+        setPrinters(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách máy in:", error);
+      }
+    };
+    fetchPrinters();
+  }, []);
+
+  // Fetch danh sách kiểu tệp
+  useEffect(() => {
+    const fetchFileTypes = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/file-types"
+        );
+        setFileTypes(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách kiểu tệp:", error);
+      }
+    };
+    fetchFileTypes();
+  }, []);
+
+  // Thêm máy in mới
+  const addPrinter = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/printers", {
+        name: "New Printer",
+        location: "Default Location",
+      });
+      setPrinters((prevPrinters) => [...prevPrinters, response.data]);
+    } catch (error) {
+      console.error("Lỗi khi thêm máy in:", error);
+    }
+  };
+
+  // Xóa máy in
+  const deletePrinter = async (printerId: string) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/printers/${printerId}`);
+      setPrinters((prevPrinters) =>
+        prevPrinters.filter((printer) => printer.id !== printerId)
+      );
+    } catch (error) {
+      console.error("Lỗi khi xóa máy in:", error);
+    }
+  };
+
+  // Cập nhật số trang in mặc định
+  const updateDefaultPages = async () => {
+    try {
+      await axios.put("http://localhost:8080/api/settings/default-pages", {
+        pages: defaultPages,
+      });
+      alert("Cập nhật thành công!");
+    } catch (error) {
+      console.error("Lỗi khi cập nhật số trang mặc định:", error);
+    }
+  };
+
   return (
     <div className="system-manage">
-      {/* Header */}
       <header className="system-header">
         <div className="logo">
           <Image src={Images} alt="Logo" width={80} height={80} />
@@ -19,115 +104,103 @@ const SystemManage: React.FC = () => {
           <a href="/logout">Đăng xuất</a>
         </nav>
       </header>
-
-      {/* Main Content */}
       <main className="system-main text-black">
-        {/* Máy in Section */}
+        {/* Quản lý máy in */}
         <section className="printer-management">
           <h2>Quản lý máy in</h2>
-          <table className="printer-table">
-            <thead>
-              <tr>
-                <th>ID máy in</th>
-                <th>Tên máy in</th>
-                <th>Địa điểm</th>
-                <th>Trạng thái hoạt động</th>
-                <th>Số lượng trang in</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>PR0001</td>
-                <td>Canon LBP603W</td>
-                <td>A5 - CS1</td>
-                <td className="status-active">Đang hoạt động</td>
-                <td>165</td>
-              </tr>
-              <tr>
-                <td>PR0002</td>
-                <td>HP LaserJet M211d</td>
-                <td>B4 - CS1</td>
-                <td className="status-active">Đang hoạt động</td>
-                <td>110</td>
-              </tr>
-              <tr>
-                <td>PR0003</td>
-                <td>LBP2900</td>
-                <td>H3 - CS2</td>
-                <td className="status-active">Đang hoạt động</td>
-                <td>190</td>
-              </tr>
-              <tr>
-                <td>PR0004</td>
-                <td>HP 107a (4ZB77A)</td>
-                <td>H6 - CS2</td>
-                <td className="status-active">Đang hoạt động</td>
-                <td>135</td>
-              </tr>
-            </tbody>
-          </table>
+          {printers.length > 0 ? (
+            <table className="printer-table">
+              <thead>
+                <tr>
+                  <th>ID máy in</th>
+                  <th>Tên máy in</th>
+                  <th>Địa điểm</th>
+                  <th>Trạng thái hoạt động</th>
+                  <th>Số lượng trang in</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {printers.map((printer) => (
+                  <tr key={printer.id}>
+                    <td>{printer.id}</td>
+                    <td>{printer.name}</td>
+                    <td>{printer.location}</td>
+                    <td
+                      className={
+                        printer.status === "active"
+                          ? "status-active"
+                          : "status-inactive"
+                      }
+                    >
+                      {printer.status === "active"
+                        ? "Đang hoạt động"
+                        : "Ngưng hoạt động"}
+                    </td>
+                    <td>{printer.pagesPrinted}</td>
+                    <td>
+                      <button onClick={() => deletePrinter(printer.id)}>
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Không có máy in nào trong danh sách.</p>
+          )}
           <div className="printer-actions">
-            <button>Thêm máy in</button>
-            <button>Xóa máy in</button>
-            <button>Cập nhật trạng thái</button>
+            <button onClick={addPrinter}>Thêm máy in</button>
           </div>
         </section>
 
-        {/* Quản lý tệp Section */}
+        {/* Quản lý tệp */}
         <section className="file-management">
           <h2>Quản lý tệp</h2>
-          <table className="file-table">
-            <thead>
-              <tr>
-                <th>Loại tệp</th>
-                <th>Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>PDF</td>
-                <td className="status-allowed">Cho phép</td>
-              </tr>
-              <tr>
-                <td>Word</td>
-                <td className="status-allowed">Cho phép</td>
-              </tr>
-              <tr>
-                <td>PNG</td>
-                <td className="status-allowed">Cho phép</td>
-              </tr>
-              <tr>
-                <td>PPT</td>
-                <td className="status-allowed">Cho phép</td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="file-actions">
-            <button>Thêm kiểu tệp</button>
-            <button>Xóa kiểu tệp</button>
-          </div>
+          {fileTypes.length > 0 ? (
+            <table className="file-table">
+              <thead>
+                <tr>
+                  <th>Loại tệp</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fileTypes.map((fileType) => (
+                  <tr key={fileType.id}>
+                    <td>{fileType.name}</td>
+                    <td
+                      className={
+                        fileType.allowed ? "status-allowed" : "status-denied"
+                      }
+                    >
+                      {fileType.allowed ? "Cho phép" : "Không cho phép"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Không có kiểu tệp nào trong danh sách.</p>
+          )}
         </section>
 
-        {/* Thông tin khác Section */}
+        {/* Thông tin khác */}
         <section className="other-info">
           <h2>Thông tin khác</h2>
           <div className="info-details">
             <label>
               Số trang giấy in mặc định:
-              <input type="number" defaultValue={20} />
+              <input
+                type="number"
+                value={defaultPages}
+                onChange={(e) => setDefaultPages(Number(e.target.value))}
+              />
             </label>
-            <button>Cập nhật</button>
-          </div>
-          <div className="info-reports">
-            <label>Nhận báo cáo người dùng:</label>
-            <button>Hàng tháng</button>
-            <button>Hàng năm</button>
-          </div>
-          <div className="confirm-changes">
-            <button>Xác nhận tất cả thay đổi</button>
+            <button onClick={updateDefaultPages}>Cập nhật</button>
           </div>
         </section>
-        {/* Footer */}
       </main>
     </div>
   );
