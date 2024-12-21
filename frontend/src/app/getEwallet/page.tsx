@@ -10,10 +10,10 @@ import "../printDocument/header.css";
 export default function GetEwallet() {
 
   const [accountId, setAccountId] = useState<string>("");
-  const [orderAmount, setOrderAmount] = useState<number>(100000); // Số tiền mặc định
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [orderAmount, setOrderAmount] = useState<number>(10000); // Số tiền mặc định
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
   const [balance, setMoney] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  // const [errorMessage, setErrorMessage] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
@@ -25,8 +25,10 @@ export default function GetEwallet() {
             Authorization: `Bearer ${token}`,
           },
         })
-        .then((response) => setMoney(response.data.ewallet.balance))
-        .catch((error) =>
+        .then((response) => {
+          setAccountId(response.data.ewallet.accountId);
+          setMoney(response.data.ewallet.balance)
+        }).catch((error) =>
           console.error("Error fetching customer balance:", error)
         );
     }
@@ -41,45 +43,31 @@ export default function GetEwallet() {
     }
   };
 
-  const createTransaction = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Vui lòng đăng nhập để tiếp tục.");
-
-      const response = await axios.post(
-        "https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet/change",
-        {
-          amount,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const { accountId, checkoutUrl } = response.data;
-      setAccountId(accountId);
-      
-
-    } catch (error) {
-      console.error("Lỗi khi tạo giao dịch:", error);
-      setErrorMessage("Đã xảy ra lỗi khi tạo giao dịch. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (orderAmount >= 10000) {
-      createTransaction();
-    }
-  }, [orderAmount]);
+  const handleTransaction = () => {
+    // setErrorMessage(""); // Reset lỗi
+    // setIsLoading(true);  // Bắt đầu tải
+    
+    const token = localStorage.getItem("token");
+    axios.patch("https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet/change", {
+      type: "add",
+      amount: orderAmount,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        console.log("response: ", response);
+        window.location.href = response.request.responseURL;
+      }
+    }).catch((error) => {
+      console.error("Error adding money to e-wallet:", error);
+    });
+  }
 
   const handlePurchaseRedirect = (path: string) => {
     router.push(path);
-};
+  };
 
   return (
     <>
@@ -102,7 +90,7 @@ export default function GetEwallet() {
             CỔNG NẠP TIỀN
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> */}
             <div className="p-4 border border-gray-300 rounded-lg bg-gray-100">
               <h3 className="text-lg font-bold text-red-700 mb-4">Thông tin nạp tiền</h3>
               <div className="mb-4">
@@ -123,7 +111,7 @@ export default function GetEwallet() {
                 <input
                   type="text"
                   readOnly
-                  value={accountId}
+                  value={balance}
                   className="block w-full p-2 border rounded bg-gray-200 text-black"
                 />
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -142,21 +130,21 @@ export default function GetEwallet() {
               </p>
             </div>
              
-            <div className="flex gap-4">
+            <div className="mb-4">
               <button onClick={() => handlePurchaseRedirect('/purchasePaper')}
                 className="px-4 py-2 text-sm font-medium text-white bg-gray-400 rounded hover:bg-gray-500"
               >
                 Hủy
               </button>
               <button
-                onClick={() => handlePurchaseRedirect('/printDocument')}
+                onClick={ handleTransaction }
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
               >
                 Xác nhận thanh toán
               </button >
-              {errorMessage && (
+              {/* {errorMessage && (
                 <div className="mt-4 text-sm text-red-600">{errorMessage}</div>
-              )}
+              )} */}
             </div>
             {/* Lưu ý */}
             <div>
@@ -180,7 +168,7 @@ export default function GetEwallet() {
           </div>
           </div>
         </div>
-      </div>
+      {/* </div> */}
     </>
   );
 }
