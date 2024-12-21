@@ -1,155 +1,91 @@
 "use client";
+
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "../../../public/assets/Images/logo.png";
 import "../printDocument/header.css";
 
-interface Printer {
-  _id: string;
-  brand: string;
-  type: string;
-  // Thêm các thuộc tính khác nếu cần
-}
+export default function GetEwallet() {
 
-export default function PrintPage() {
+  const [accountId, setAccountId] = useState<string>("");
+  const [orderAmount, setOrderAmount] = useState<number>(100000); // Số tiền mặc định
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [balance, setMoney] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const router = useRouter();
-  const [file, setFile] = useState<File>();
-  const [fileName, setFileName] = useState("Chưa có tài liệu được tải lên");
-  const [paperCount, setPaperCount] = useState(-1);
-  const [printQuantity, setPrintQuantity] = useState(1);
-  const [printers, setPrinters] = useState<Printer[]>([]);
-  const [selectedPrinter, setSelectedPrinter] = useState<string>('');
-  const [selectedPaperSize, setSelectedPaperSize] = useState<string>('');
-  const [printFormat, setPrintFormat] = useState("In một mặt");
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    // console.log(selectedFile)
-    if (selectedFile) { 
-      setFileName(selectedFile.name);
-      setFile(selectedFile);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios
+        .get("https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => setMoney(response.data.ewallet.balance))
+        .catch((error) =>
+          console.error("Error fetching customer balance:", error)
+        );
+    }
+  }, []);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const amount = parseInt(e.target.value, 10);
+    if (amount >= 10000) {
+      setOrderAmount(amount);
+    } else {
+      alert("Số tiền phải lớn hơn hoặc bằng 10,000 VND.");
+    }
+  };
+
+  const createTransaction = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Vui lòng đăng nhập để tiếp tục.");
+
+      const response = await axios.post(
+        "https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet/change",
+        {
+          amount,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const { accountId, checkoutUrl } = response.data;
+      setAccountId(accountId);
+      
+
+    } catch (error) {
+      console.error("Lỗi khi tạo giao dịch:", error);
+      setErrorMessage("Đã xảy ra lỗi khi tạo giao dịch. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    // console.log(token)
-    axios.get('https://printingsystem-dev-by-swimteam.onrender.com/api/printer', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => {
-        setPrinters(response.data.listPrinter)
-        if (response.data.listPrinter.length > 0) 
-          setSelectedPrinter(response.data.listPrinter[0].brand);
-        if (response.data.listPrinter[0].type === 'A3')
-            setSelectedPaperSize('A3 (420 mm x 297 mm)');
-          else setSelectedPaperSize('A4 (297 mm x 210 mm)');
-      })
-      .catch(error => console.error('Error fetching printers:', error)) 
-    
-    axios.get('https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(response => {
-        setPaperCount(response.data.ewallet.balancePaper)
-      })
-      .catch(error => console.error('Error fetching paper count:', error))
-  }, [])
-
-  const getAvailablePaperSizes = () => {
-    if (!selectedPrinter) return [];
-    const printer = printers.find(p => p.brand === selectedPrinter);
-    if (!printer) return [];
-    switch (printer?.type) {
-      case 'A4':
-        return ['A4 (297 mm x 210 mm)'];
-      case 'A3':
-        return ['A3 (420 mm x 297 mm)'];
-      case 'A4 and A3':
-      case 'A3 and A4': // Đảm bảo tương thích nhiều cách ghi
-        return ['A4 (297 mm x 210 mm)', 'A3 (420 mm x 297 mm)'];
-      default:
-        return [];
+    if (orderAmount >= 10000) {
+      createTransaction();
     }
-  };
+  }, [orderAmount]);
 
-  const handlePurchaseMorePaper = () => {
-    router.push("/purchasePaper");
-  };
-
-  const handleConfirmPrint = () => {
-    setLoading(true);
-    if (printQuantity > paperCount) 
-      setErrorMessage('Số lượng bản in vượt quá số lượng tờ còn lại.');
-    else if (printQuantity <= 0)
-      setErrorMessage('Số lượng bản in phải lớn hơn 0.');
-    else if (fileName === "Chưa có tài liệu được tải lên") 
-      setErrorMessage('Chưa có tài liệu được tải lên.');
-    else {
-      const token = localStorage.getItem('token')
-      const formData = new FormData();
-      if (file) formData.append('file', file);
-      else {
-        console.error('File is undefined');
-        setErrorMessage('File không hợp lệ.');
-        return;
-      }
-
-      axios.post('https://printingsystem-dev-by-swimteam.onrender.com/api/file', formData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then(response => {
-        const fileId = response.data.file._id;
-        console.log(fileId);
-        const printerId = printers.find(p => p.brand === selectedPrinter)?._id;
-        console.log(printerId);
-
-        axios.post('https://printingsystem-dev-by-swimteam.onrender.com/api/printer', {
-          fileId,
-          printerId,
-          selectedPaperSize,
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      })
-      .then(() => {
-        alert("Đã xác nhận in thành công.");
-        router.push('/student_homepage');
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        setErrorMessage('Có lỗi xảy ra khi in.');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-    };
-  }
-  const handleCancel = () => {
-    setFile(undefined);
-    setFileName("Chưa có tài liệu được tải lên");
-    setPrintQuantity(1);
-    setSelectedPrinter(printers[0].brand);
-    setSelectedPaperSize(printers[0].type === 'A3' ? 'A3 (420 mm x 297 mm)' : 'A4 (297 mm x 210 mm)');
-    setPrintFormat("In một mặt");
-  }; 
+  const handlePurchaseRedirect = (path: string) => {
+    router.push(path);
+};
 
   return (
     <>
-    <header className="header">
+      <header className="header">
         <div className="logo">
-        <Image src={Logo} alt="Logo" width={80} height={80} />
+          <Image src={Logo} alt="Logo" width={80} height={80} />
           <span>HCMUT-SSPS</span>
         </div>
         <nav className="navbar">
@@ -159,180 +95,92 @@ export default function PrintPage() {
           <a href="/logout">Đăng xuất</a>
         </nav>
       </header>
-    <div className="min-h-screen bg-gray-50 py-10 text-black">
-      <div className="w-full max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md border border-gray-300">
-        {/* Header */}
-        <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-          Tải tệp lên
-        </h1>
 
-        {/* Tải tài liệu */}
-        <div className="mb-8">
-          <label
-            className="block text-gray-700 font-medium mb-2"
-            htmlFor="fileUpload"
-          >
-            Chọn tài liệu
-          </label>
-          <div className="flex items-center space-x-4">
-            <input
-              type="file"
-              id="fileUpload"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <label
-              htmlFor="fileUpload"
-              className="px-4 py-2 bg-gray-200 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-300"
-            >
-              Chọn tài liệu
-            </label>
-            <span className="text-gray-600">{fileName}</span>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Định dạng hỗ trợ: PDF
-          </p>
-        </div>
+      <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10">
+        <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md border border-gray-300">
+          <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+            CỔNG NẠP TIỀN
+          </h1>
 
-        {/* Máy in và thông tin in */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Chọn máy in */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-700 mb-4">
-              Chọn máy in
-            </h3>
-            <div className="space-y-2">
-              {printers.map((printer, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    setSelectedPrinter(printer.brand)
-                    setSelectedPaperSize(printer.type === 'A3' ? 'A3 (420 mm x 297 mm)' : 'A4 (297 mm x 210 mm)');
-                  }}
-                  className={`cursor-pointer px-4 py-2 border rounded-lg ${
-                    selectedPrinter === printer.brand
-                      ? "bg-yellow-200 border-yellow-400"
-                      : "bg-gray-100 hover:bg-gray-200"
-                  }`}
-                >
-                  {printer.brand}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Thông tin bổ sung */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-700 mb-4">
-              Số lượng tờ còn lại tương ứng:{" "}
-              <span className="bg-yellow-200 px-2 py-1 rounded">
-                {paperCount}
-              </span>
-            </h3>
-            <button
-              className="text-blue-500 hover:underline"
-              onClick={handlePurchaseMorePaper}
-            >
-              Mua thêm
-            </button>
-
-            <div className="mt-6">
-              <label
-                className="block text-gray-700 font-medium mb-2"
-                htmlFor="printQuantity"
-              >
-                Số lượng bản in:
-              </label>
-              <input
-                type="number"
-                id="printQuantity"
-                value={printQuantity}
-                onChange={(e) => setPrintQuantity(Number(e.target.value))}
-                min={1}
-                className="w-20 px-4 py-2 border border-gray-300 rounded-lg text-center bg-gray-100"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Chọn cỡ giấy in */}
-        <div className="mt-8">
-          <h3 className="text-lg font-bold text-gray-700 mb-4">
-            Chọn cỡ giấy in
-          </h3>
-          <div className="space-y-2">
-            {getAvailablePaperSizes().map((size) => (
-              <div
-                key={size}
-                onClick={() => setSelectedPaperSize(size)}
-                className={`cursor-pointer px-4 py-2 border rounded-lg ${
-                  selectedPaperSize === size
-                    ? "bg-yellow-200 border-yellow-400"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                {size}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-4 border border-gray-300 rounded-lg bg-gray-100">
+              <h3 className="text-lg font-bold text-red-700 mb-4">Thông tin nạp tiền</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mã tài khoản
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  value={accountId}
+                  className="block w-full p-2 border rounded bg-gray-200 text-black"
+                />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Chọn định dạng in */}
-        <div className="mt-8">
-          <h3 className="text-lg font-bold text-gray-700 mb-4">
-            Chọn định dạng in
-          </h3>
-          <div className="flex space-x-4">
-            {["In một mặt", "In hai mặt"].map((format) => (
-              <div
-                key={format}
-                onClick={() => setPrintFormat(format)}
-                className={`cursor-pointer px-4 py-2 border rounded-lg ${
-                  printFormat === format
-                    ? "bg-yellow-200 border-yellow-400"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                {format}
+              <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Số dư tài khoản (VND)
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  value={accountId}
+                  className="block w-full p-2 border rounded bg-gray-200 text-black"
+                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Số tiền cần nạp (VND)
+                </label>
+                <input
+                  type="number"
+                  value={orderAmount}
+                  onChange={handleAmountChange}
+                  className="block w-full p-2 border rounded text-black"
+                  min={10000}
+                />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Nút hành động */}
-        <div className="mt-8 flex justify-end space-x-4">
-            <button className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-                onClick={handleCancel}
-                disabled={loading}
-            >
-            Hủy bỏ các lựa chọn
-          </button>
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              onClick={handleConfirmPrint}
-              disabled = { loading }
-            >
-            Xác nhận in
-          </button>
-          </div>
-          
-        {/* Thông báo lỗi */}
-        {errorMessage && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-                <p className="text-red-500 mb-4">{errorMessage}</p>
-              <div className="flex justify-center">
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                onClick={() => setErrorMessage('')}
+              <p className="text-sm text-gray-700">
+                Số tiền tối thiểu: 10,000 VND
+              </p>
+            </div>
+             
+            <div className="flex gap-4">
+              <button onClick={() => handlePurchaseRedirect('/purchasePaper')}
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-400 rounded hover:bg-gray-500"
               >
-                Đóng
+                Hủy
               </button>
-              </div>
+              <button
+                onClick={() => handlePurchaseRedirect('/printDocument')}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+              >
+                Xác nhận thanh toán
+              </button >
+              {errorMessage && (
+                <div className="mt-4 text-sm text-red-600">{errorMessage}</div>
+              )}
             </div>
+            {/* Lưu ý */}
+            <div>
+            <h3 className="text-lg font-bold text-blue-700 mb-4">Một số lưu ý</h3>
+            <ul className="list-disc list-inside text-sm text-gray-700 mb-6">
+              <li>Giá thành cho giấy A4: 500 VND / tờ</li>
+              <li>Giá thành cho giấy A3: 1000 VND / tờ</li>
+              <li>Số lượng giấy mua tối thiểu: 5 tờ / lượt</li>
+              <li>Số lượng giấy mua tối đa: 100 tờ / lượt</li>
+              <li>Số lượng giấy mua phải là bội số của 5 (5, 10, 15,...)</li>
+            </ul>
+
+            <h3 className="text-lg font-bold text-blue-700 mb-4">Hỗ trợ khi có sự cố</h3>
+            <p className="text-sm text-gray-700 mb-2">
+              Nếu trong quá trình thanh toán có xảy ra sự cố giao dịch, hãy thử thanh toán lại hoặc liên hệ qua các kênh hỗ trợ sau:
+            </p>
+            <p className="text-sm text-blue-600">
+              Email: payment_support@hcmut.edu.vn
+            </p>
+            <p className="text-sm text-gray-700">Hotline: 0987-654-321</p>
           </div>
-        )}
+          </div>
+        </div>
       </div>
-    </div>
     </>
   );
 }
