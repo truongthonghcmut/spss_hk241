@@ -47,6 +47,10 @@ export default function StudentLogin() {
         }
     };
 
+    const handleRegister = () => {
+        router.push('/login/student/register')
+    };
+
     return (
         <>
         <header className="header">
@@ -116,6 +120,15 @@ export default function StudentLogin() {
                                 >
                                     Đăng nhập
                                 </button>
+                            </div>
+                            <div className="flex justify-between items-center mb-4 mt-3">
+                                <a
+                                    
+                                    className="text-sm text-blue-600 hover:underline"
+                                    onClick={handleRegister}
+                                >
+                                    Tạo tài khoản
+                                </a>
                             </div>
                         </form>
                     </div>
