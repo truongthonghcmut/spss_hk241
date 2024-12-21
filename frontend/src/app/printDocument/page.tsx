@@ -23,6 +23,7 @@ export default function PrintPage() {
   const [selectedPrinter, setSelectedPrinter] = useState<string>('');
   const [selectedPaperSize, setSelectedPaperSize] = useState<string>('');
   const [printFormat, setPrintFormat] = useState("In một mặt");
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +38,7 @@ export default function PrintPage() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     // console.log(token)
-    axios.get('http://localhost:8080/api/printer', {
+    axios.get('https://printingsystem-dev-by-swimteam.onrender.com/api/printer', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -52,7 +53,7 @@ export default function PrintPage() {
       })
       .catch(error => console.error('Error fetching printers:', error)) 
     
-    axios.get('http://localhost:8080/api/e-wallet', {
+    axios.get('https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -85,6 +86,7 @@ export default function PrintPage() {
   };
 
   const handleConfirmPrint = () => {
+    setLoading(true);
     if (printQuantity > paperCount) 
       setErrorMessage('Số lượng bản in vượt quá số lượng tờ còn lại.');
     else if (printQuantity <= 0)
@@ -101,17 +103,19 @@ export default function PrintPage() {
         return;
       }
 
-      axios.post('http://localhost:8080/api/file', formData, {
+      axios.post('https://printingsystem-dev-by-swimteam.onrender.com/api/file', formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       })
       .then(response => {
-        const fileId = response.data._id;
+        const fileId = response.data.file._id;
+        console.log(fileId);
         const printerId = printers.find(p => p.brand === selectedPrinter)?._id;
+        console.log(printerId);
 
-        return axios.post('http://localhost:8080/api/printer', {
+        axios.post('https://printingsystem-dev-by-swimteam.onrender.com/api/printer', {
           fileId,
           printerId,
           selectedPaperSize,
@@ -119,15 +123,16 @@ export default function PrintPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
       })
-        .then(() => {
+      .then(() => {
         alert("Đã xác nhận in thành công.");
-        setTimeout(() => {
-            router.push('/student_homepage');
-        }, 2000);
+        router.push('/student_homepage');
       })
       .catch(error => {
         console.error('Error:', error);
         setErrorMessage('Có lỗi xảy ra khi in.');
+      })
+      .finally(() => {
+        setLoading(false);
       });
     };
   }
@@ -297,13 +302,14 @@ export default function PrintPage() {
         {/* Nút hành động */}
         <div className="mt-8 flex justify-end space-x-4">
             <button className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-                    onClick = {handleCancel}
-              >
+                onClick={handleCancel}
+                disabled={loading}
+            >
             Hủy bỏ các lựa chọn
           </button>
             <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
               onClick={handleConfirmPrint}
-              // disabled = { printQuantity > paperCount }
+              disabled = { loading }
             >
             Xác nhận in
           </button>
