@@ -7,19 +7,20 @@ buttonFile.addEventListener("submit", (event) => {
   const formData = new FormData(form); // Khởi tạo FormData với đối tượng form
 
   if (formData) {
-    console.log(formData);
-    fetch("http://localhost:8080/api/file", {
+    console.log(formData)
+    fetch("http://localhost:8080/api/file", 
+    {
       method: "POST",
-      body: formData, // Send the form data containing the file
+      body: formData // Send the form data containing the file
     })
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res); // Log the response from the server
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    .then(res => res.json())
+    .then(res => {
+      console.log(res); // Log the response from the server
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   } else {
-    console.log("No file selected");
+    console.log('No file selected');
   }
 });
