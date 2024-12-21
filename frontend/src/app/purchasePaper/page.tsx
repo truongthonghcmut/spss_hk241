@@ -9,17 +9,17 @@ import "../purchasePaper/header.css";
 export default function PaperPurchase() {
   const initialState = {
     paperType: "A4",
-    quantity: 20,
+    balancePaper: 20,
     price: 500, // Giá mặc định cho A4 là 500
   };
   const [paperType, setPaperType] = useState(initialState.paperType);
-  const [quantity, setQuantity] = useState(initialState.quantity);
+  const [balancePaper, setQuantity] = useState(initialState.balancePaper);
   const [price, setPrice] = useState(initialState.price);
   const [customerBalance, setCustomerBalance] = useState<number>(0); // Số dư tài khoản
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
-  const totalPrice = quantity * price;
+  const totalPrice = balancePaper * price;
 
   // Lấy thông tin số dư tài khoản
   useState(() => {
@@ -42,7 +42,7 @@ export default function PaperPurchase() {
   };
 
   const handleQuantityChange = (change: number) => {
-    const newQuantity = quantity + change;
+    const newQuantity = balancePaper + change;
     if (newQuantity >= 5 && newQuantity <= 100 && newQuantity % 5 === 0) {
       setQuantity(newQuantity);
     }
@@ -65,9 +65,7 @@ export default function PaperPurchase() {
       .post(
         "https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet/buy",
         {
-          paperType,
-          quantity,
-          totalPrice,
+          balancePaper,
         },
         {
           headers: {
@@ -78,7 +76,7 @@ export default function PaperPurchase() {
       .then(() => {
         // Cập nhật số dư tài khoản sau khi thanh toán thành công
         alert(
-          `Bạn đã mua thành công ${quantity} tờ giấy ${paperType} với giá ${totalPrice.toLocaleString()} VND.`
+          `Bạn đã mua thành công ${balancePaper} tờ giấy ${paperType} với giá ${totalPrice.toLocaleString()} VND.`
         );
         router.push("/printDocument");
       })
@@ -143,7 +141,7 @@ export default function PaperPurchase() {
                 >
                   -
                 </button>
-                <span className="px-6 py-2 border rounded-lg text-black">{quantity}</span>
+                <span className="px-6 py-2 border rounded-lg text-black">{balancePaper}</span>
                 <button
                   className="px-3 py-1 bg-gray-300 rounded-lg text-black"
                   onClick={() => handleQuantityChange(5)}
