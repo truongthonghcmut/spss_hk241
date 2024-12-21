@@ -1,24 +1,46 @@
 "use client";
-import React, { useState } from "react";
+import axios from "axios";
 import Image from "next/image";
-import Logo from "../../../public/assets/Images/logo.png"
-import "../purchasePaper/header.css"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Logo from "../../../public/assets/Images/logo.png";
+import "../purchasePaper/header.css";
 
 export default function PaperPurchase() {
-  const [paperType, setPaperType] = useState("A4");
-  const [quantity, setQuantity] = useState(20);
-  const [price, setPrice] = useState(500); // Giá mặc định cho A4 là 500
+  const initialState = {
+    paperType: "A4",
+    quantity: 20,
+    price: 500, // Giá mặc định cho A4 là 500
+  };
+  const [paperType, setPaperType] = useState(initialState.paperType);
+  const [quantity, setQuantity] = useState(initialState.quantity);
+  const [price, setPrice] = useState(initialState.price);
+  const [customerBalance, setCustomerBalance] = useState<number>(0); // Số dư tài khoản
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
 
-  // Tính tổng tiền
   const totalPrice = quantity * price;
 
-  // Xử lý thay đổi loại giấy
+  // Lấy thông tin số dư tài khoản
+  useState(() => {
+    const token = localStorage.getItem("token");
+    axios
+      .get("https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => setCustomerBalance(response.data.ewallet.balance))
+      .catch((error) =>
+        console.error("Error fetching customer balance:", error)
+      );
+  });
+
   const handlePaperTypeChange = (type: string) => {
     setPaperType(type);
     setPrice(type === "A4" ? 500 : 1000); // Giá cho từng loại giấy
   };
 
-  // Xử lý tăng/giảm số lượng
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change;
     if (newQuantity >= 5 && newQuantity <= 100 && newQuantity % 5 === 0) {
@@ -26,9 +48,44 @@ export default function PaperPurchase() {
     }
   };
 
-  // Xử lý thanh toán
+  const handlePurchaseRedirect = (path: string) => {
+      router.push(path);
+  };
+
   const handlePayment = () => {
-    alert(`Bạn đã thanh toán ${totalPrice.toLocaleString()} VND cho ${quantity} tờ giấy ${paperType}.`);
+    if (totalPrice > customerBalance) {
+      setErrorMessage(
+        "Số dư tài khoản không đủ để thực hiện giao dịch. Vui lòng nạp thêm tiền."
+      );
+      return;
+    }
+    
+    const token = localStorage.getItem("token");
+    axios
+      .post(
+        "https://printingsystem-dev-by-swimteam.onrender.com/api/e-wallet/buy",
+        {
+          paperType,
+          quantity,
+          totalPrice,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
+        // Cập nhật số dư tài khoản sau khi thanh toán thành công
+        alert(
+          `Bạn đã mua thành công ${quantity} tờ giấy ${paperType} với giá ${totalPrice.toLocaleString()} VND.`
+        );
+        router.push("/printDocument");
+      })
+      .catch((error) => {
+        console.error("Error purchasing paper:", error);
+        setErrorMessage("Có lỗi xảy ra khi thực hiện giao dịch.");
+      });
   };
 
   return (
@@ -107,7 +164,7 @@ export default function PaperPurchase() {
             </div>
 
             <div className="flex gap-4">
-              <button
+              <button onClick={() => handlePurchaseRedirect('/printDocument')}
                 className="px-4 py-2 text-sm font-medium text-white bg-gray-400 rounded hover:bg-gray-500"
               >
                 Hủy
@@ -117,10 +174,31 @@ export default function PaperPurchase() {
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
               >
                 Xác nhận thanh toán
+              </button >
+              <button 
+               onClick={() => handlePurchaseRedirect('/getEwallet')}
+               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700">
+                Nạp tiền
               </button>
+              {errorMessage && (
+                <div className="mt-4 text-sm text-red-600">{errorMessage}</div>
+              )}
             </div>
           </div>
+          
+          <div className="p-4 border border-gray-300 rounded-lg bg-gray-100">
+          <h3 className="text-lg font-bold text-red-700 mb-4">Thông tin thanh toán</h3>
+          <p className="text-sm text-gray-700 mb-2">
+                Số dư tài khoản:{" "}
+                <span className="font-bold">
+                  {customerBalance.toLocaleString()} VND
+                </span>
+              </p>
+              <p className="text-sm text-gray-700 mb-6">
+                Hãy đảm bảo rằng số dư tài khoản đủ để thanh toán.
+              </p>
 
+          </div>
           {/* Lưu ý */}
           <div>
             <h3 className="text-lg font-bold text-blue-700 mb-4">Một số lưu ý</h3>
@@ -146,4 +224,6 @@ export default function PaperPurchase() {
     </div>
     </>
   );
+
+
 }
