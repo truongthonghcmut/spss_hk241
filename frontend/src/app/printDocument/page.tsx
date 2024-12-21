@@ -1,33 +1,144 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import Image from "next/image";
 import Logo from "../../../public/assets/Images/logo.png"
 import "../printDocument/header.css"
 
+interface Printer {
+  _id: string;
+  brand: string;
+  type: string;
+  // Thêm các thuộc tính khác nếu cần
+}
+
 export default function PrintPage() {
   const router = useRouter();
+  const [file, setFile] = useState<File>();
   const [fileName, setFileName] = useState("Chưa có tài liệu được tải lên");
-  const [paperCount, setPaperCount] = useState(5);
+  const [paperCount, setPaperCount] = useState(-1);
   const [printQuantity, setPrintQuantity] = useState(1);
-  const [selectedPrinter, setSelectedPrinter] = useState(
-    "Canon LBP603W - A5 - CS1"
-  );
-  const [selectedPaperSize, setSelectedPaperSize] = useState(
-    "A4 (297 mm x 210 mm)"
-  );
+  const [printers, setPrinters] = useState<Printer[]>([]);
+  const [selectedPrinter, setSelectedPrinter] = useState<string>('');
+  const [selectedPaperSize, setSelectedPaperSize] = useState<string>('');
   const [printFormat, setPrintFormat] = useState("In một mặt");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
+    const selectedFile = e.target.files?.[0];
+    // console.log(selectedFile)
+    if (selectedFile) { 
+      setFileName(selectedFile.name);
+      setFile(selectedFile);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    // console.log(token)
+    axios.get('http://localhost:8080/api/printer', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => {
+        setPrinters(response.data.listPrinter)
+        if (response.data.listPrinter.length > 0) 
+          setSelectedPrinter(response.data.listPrinter[0].brand);
+        if (response.data.listPrinter[0].type === 'A3')
+            setSelectedPaperSize('A3 (420 mm x 297 mm)');
+          else setSelectedPaperSize('A4 (297 mm x 210 mm)');
+      })
+      .catch(error => console.error('Error fetching printers:', error)) 
+    
+    axios.get('http://localhost:8080/api/e-wallet', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => {
+        setPaperCount(response.data.ewallet.balancePaper)
+      })
+      .catch(error => console.error('Error fetching paper count:', error))
+  }, [])
+
+  const getAvailablePaperSizes = () => {
+    if (!selectedPrinter) return [];
+    const printer = printers.find(p => p.brand === selectedPrinter);
+    if (!printer) return [];
+    switch (printer?.type) {
+      case 'A4':
+        return ['A4 (297 mm x 210 mm)'];
+      case 'A3':
+        return ['A3 (420 mm x 297 mm)'];
+      case 'A4 and A3':
+      case 'A3 and A4': // Đảm bảo tương thích nhiều cách ghi
+        return ['A4 (297 mm x 210 mm)', 'A3 (420 mm x 297 mm)'];
+      default:
+        return [];
     }
   };
 
   const handlePurchaseMorePaper = () => {
     router.push("/purchasePaper");
   };
+
+  const handleConfirmPrint = () => {
+    if (printQuantity > paperCount) 
+      setErrorMessage('Số lượng bản in vượt quá số lượng tờ còn lại.');
+    else if (printQuantity <= 0)
+      setErrorMessage('Số lượng bản in phải lớn hơn 0.');
+    else if (fileName === "Chưa có tài liệu được tải lên") 
+      setErrorMessage('Chưa có tài liệu được tải lên.');
+    else {
+      const token = localStorage.getItem('token')
+      const formData = new FormData();
+      if (file) formData.append('file', file);
+      else {
+        console.error('File is undefined');
+        setErrorMessage('File không hợp lệ.');
+        return;
+      }
+
+      axios.post('http://localhost:8080/api/file', formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        const fileId = response.data._id;
+        const printerId = printers.find(p => p.brand === selectedPrinter)?._id;
+
+        return axios.post('http://localhost:8080/api/printer', {
+          fileId,
+          printerId,
+          selectedPaperSize,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      })
+        .then(() => {
+        alert("Đã xác nhận in thành công.");
+        setTimeout(() => {
+            router.push('/student_homepage');
+        }, 2000);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setErrorMessage('Có lỗi xảy ra khi in.');
+      });
+    };
+  }
+  const handleCancel = () => {
+    setFile(undefined);
+    setFileName("Chưa có tài liệu được tải lên");
+    setPrintQuantity(1);
+    setSelectedPrinter(printers[0].brand);
+    setSelectedPaperSize(printers[0].type === 'A3' ? 'A3 (420 mm x 297 mm)' : 'A4 (297 mm x 210 mm)');
+    setPrintFormat("In một mặt");
+  }; 
 
   return (
     <>
@@ -74,7 +185,7 @@ export default function PrintPage() {
             <span className="text-gray-600">{fileName}</span>
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            Định dạng hỗ trợ: PDF, Word, PPT, PNG
+            Định dạng hỗ trợ: PDF
           </p>
         </div>
 
@@ -86,22 +197,20 @@ export default function PrintPage() {
               Chọn máy in
             </h3>
             <div className="space-y-2">
-              {[
-                "Canon LBP603W - A5 - CS1",
-                "HP LaserJet M211d - B4 - CS1",
-                "LBP2900 - H3 - CS2",
-                "HP 107a (4ZB77A) - H6 - CS2",
-              ].map((printer) => (
+              {printers.map((printer, index) => (
                 <div
-                  key={printer}
-                  onClick={() => setSelectedPrinter(printer)}
+                  key={index}
+                  onClick={() => {
+                    setSelectedPrinter(printer.brand)
+                    setSelectedPaperSize(printer.type === 'A3' ? 'A3 (420 mm x 297 mm)' : 'A4 (297 mm x 210 mm)');
+                  }}
                   className={`cursor-pointer px-4 py-2 border rounded-lg ${
-                    selectedPrinter === printer
+                    selectedPrinter === printer.brand
                       ? "bg-yellow-200 border-yellow-400"
                       : "bg-gray-100 hover:bg-gray-200"
                   }`}
                 >
-                  {printer}
+                  {printer.brand}
                 </div>
               ))}
             </div>
@@ -147,7 +256,7 @@ export default function PrintPage() {
             Chọn cỡ giấy in
           </h3>
           <div className="space-y-2">
-            {["A4 (297 mm x 210 mm)", "A3 (420 mm x 297 mm)"].map((size) => (
+            {getAvailablePaperSizes().map((size) => (
               <div
                 key={size}
                 onClick={() => setSelectedPaperSize(size)}
@@ -187,13 +296,35 @@ export default function PrintPage() {
 
         {/* Nút hành động */}
         <div className="mt-8 flex justify-end space-x-4">
-          <button className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+            <button className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                    onClick = {handleCancel}
+              >
             Hủy bỏ các lựa chọn
           </button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              onClick={handleConfirmPrint}
+              // disabled = { printQuantity > paperCount }
+            >
             Xác nhận in
           </button>
-        </div>
+          </div>
+          
+        {/* Thông báo lỗi */}
+        {errorMessage && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+                <p className="text-red-500 mb-4">{errorMessage}</p>
+              <div className="flex justify-center">
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                onClick={() => setErrorMessage('')}
+              >
+                Đóng
+              </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
     </>
