@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./user_manage.css";
@@ -7,14 +6,17 @@ import Image from "next/image";
 import Images from "../../../public/assets/Images/logo.png";
 
 interface User {
-  mssv: string;
+  _id: string;
   name: string;
-  location: string;
-  date: string;
+  email: string;
+  phone: string;
+  role: string;
+  ms?: string;
 }
 
 const UserManage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,11 +26,19 @@ const UserManage: React.FC = () => {
       setError(null);
 
       try {
-        const response = await axios.get<User[]>(
-          "http://localhost:8080/api/users"
+        const token = localStorage.getItem("token");
+        console.log(token);
+
+        const response = await axios.get(
+          "http://localhost:8080/manager/api/accountAllStudent",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        console.log(response);
-        setUsers(response.data);
+
+        setUsers(response.data.accounts);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
           setError(
@@ -44,6 +54,14 @@ const UserManage: React.FC = () => {
 
     fetchUsers();
   }, []);
+
+  const handleViewMore = (user: User) => {
+    setSelectedUser(user);
+  };
+
+  const closeDetails = () => {
+    setSelectedUser(null);
+  };
 
   return (
     <div className="user-manage">
@@ -68,28 +86,72 @@ const UserManage: React.FC = () => {
           <table className="user-table">
             <thead>
               <tr>
-                <th>MSSV</th>
                 <th>Họ và tên</th>
-                <th>Địa điểm in</th>
-                <th>Ngày</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Vai trò</th>
+                <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.mssv}>
-                  <td>{user.mssv}</td>
+                <tr key={user._id}>
                   <td>{user.name}</td>
-                  <td>{user.location}</td>
-                  <td>{user.date}</td>
+                  <td>{user.email}</td>
+                  <td>{user.phone}</td>
+                  <td>{user.role}</td>
+                  <td>
+                    <button onClick={() => handleViewMore(user)}>
+                      Xem thêm
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="user-actions">
-          <button>Xem thêm</button>
-          <button>Xác nhận</button>
-        </div>
+        {selectedUser && (
+          <div className="user-details">
+            <h3>Thông tin chi tiết</h3>
+            <table className="details-table">
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>Họ và tên:</strong>
+                  </td>
+                  <td>{selectedUser.name}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <strong>Email:</strong>
+                  </td>
+                  <td>{selectedUser.email}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <strong>Số điện thoại:</strong>
+                  </td>
+                  <td>{selectedUser.phone}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <strong>Vai trò:</strong>
+                  </td>
+                  <td>{selectedUser.role}</td>
+                </tr>
+                {selectedUser.ms && (
+                  <tr>
+                    <td>
+                      <strong>MS:</strong>
+                    </td>
+                    <td>{selectedUser.ms}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <button onClick={closeDetails}>Đóng</button>
+          </div>
+        )}
       </main>
     </div>
   );
