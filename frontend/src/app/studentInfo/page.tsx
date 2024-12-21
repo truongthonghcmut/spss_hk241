@@ -26,8 +26,9 @@ interface PrintHistory {
 interface TransactionHistory {
   date: string;
   time: string;
-  pages: number;
-  total: number;
+  balancePaper: number;
+  paperSize: string;
+  amount: number;
 }
 
 interface File {
@@ -111,6 +112,38 @@ export default function StudentProfile() {
         });
         setPrintHistory(newHistory);
       });
+    
+    /* Fetch transaction history */
+    axios.get("https://printingsystem-dev-by-swimteam.onrender.com/api/buypaperlog", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then(response => {
+      const newTransactionHistory: TransactionHistory[] = response.data.field.map((item: { createdAt: string; balancePaper: number; amount: number; }) => {
+        if (item.createdAt) {
+          const [datePart, timePart] = item.createdAt.split('T');
+          let paperSize = null;
+          if (item.amount / item.balancePaper === 1000) paperSize = "A3";
+          else paperSize = "A4";
+          return {
+            date: datePart,
+            time: timePart?.split('.')[0] || '',
+            balancePaper: item.balancePaper,
+            paperSize: paperSize,
+            amount: item.amount,
+          };
+        } else {
+          return {
+            date: '',
+            time: '',
+            balancePaper: item.balancePaper,
+            paperSize: null,
+            amount: item.amount,
+          };
+        }
+      });
+      setTransactionHistory(newTransactionHistory);
+    });
     
     /*fetch file name */
     axios.get("https://printingsystem-dev-by-swimteam.onrender.com/api/file/", {
@@ -239,20 +272,15 @@ export default function StudentProfile() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="px-4 py-2 border text-black">22/10/2024</td>
-                  <td className="px-4 py-2 border text-black">10:33</td>
-                  <td className="px-4 py-2 border text-black">10</td>
-                  <td className="px-4 py-2 border text-black">A4</td>
-                  <td className="px-4 py-2 border text-black">5.000</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2 border text-black">18/10/2024</td>
-                  <td className="px-4 py-2 border text-black">10:57</td>
-                  <td className="px-4 py-2 border text-black">10</td>
-                  <td className="px-4 py-2 border text-black">A4</td>
-                  <td className="px-4 py-2 border text-black">5.000</td>
-                </tr>
+                {transactionHistory.map((record, index) => (
+                  <tr key={index}>
+                    <td className="px-4 py-2 border text-black">{record.date}</td>
+                    <td className="px-4 py-2 border text-black">{record.time}</td>
+                    <td className="px-4 py-2 border text-black">{record.balancePaper}</td>
+                    <td className="px-4 py-2 border text-black">{record.paperSize}</td>
+                    <td className="px-4 py-2 border text-black">{record.amount}</td>
+                  </tr>
+                ))}
               </tbody>
               </table>
               <h3 className="text-lg font-bold text-blue-700 mb-4">File của tôi</h3>
