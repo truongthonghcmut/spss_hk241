@@ -29,6 +29,8 @@ const SystemManage: React.FC = () => {
   const [fileTypes, setFileTypes] = useState<FileType[]>([]);
   const [defaultPages, setDefaultPages] = useState(20);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
   const [printerData, setPrinterData] = useState({
     cs: "1",
     brand: "",
@@ -41,7 +43,9 @@ const SystemManage: React.FC = () => {
     price: "",
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setPrinterData((prev) => ({
       ...prev,
@@ -49,7 +53,7 @@ const SystemManage: React.FC = () => {
     }));
   };
 
-  const addPrinter = async (e) => {
+  const addPrinter = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
@@ -200,7 +204,12 @@ const SystemManage: React.FC = () => {
                         : "Ngưng hoạt động"}
                     </td>
                     <td>
-                      <button onClick={() => deletePrinter(printer._id)}>
+                      <button
+                        onClick={() => {
+                          setSelectedPrinter(printer);
+                          setIsConfirmModalOpen(true);
+                        }}
+                      >
                         Xóa
                       </button>
                     </td>
@@ -365,6 +374,29 @@ const SystemManage: React.FC = () => {
           </div>
         </section>
       </main>
+      {isConfirmModalOpen && selectedPrinter && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Xác nhận xóa</h3>
+            <p>
+              Bạn có chắc chắn muốn xóa máy in{" "}
+              <strong>{selectedPrinter.brand}</strong> tại cơ sở{" "}
+              <strong>{selectedPrinter.cs}</strong> không?
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  deletePrinter(selectedPrinter._id);
+                  setIsConfirmModalOpen(false);
+                }}
+              >
+                Xóa
+              </button>
+              <button onClick={() => setIsConfirmModalOpen(false)}>Hủy</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
